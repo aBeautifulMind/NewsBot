@@ -1,3 +1,3 @@
 # NewsBot
 
-Manu sta scrivendo il readme
+Manu sta scrivendo il readme blablabla
