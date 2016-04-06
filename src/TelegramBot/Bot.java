@@ -41,4 +41,14 @@ public class Bot {
         List<Update> updates = updatesResponse.updates();
         return updates;
     }
+
+    public void SendMessage(int chatId, String message) throws Exception{
+        try {
+            telegramBot.sendMessage(chatId,message);
+        }
+        catch (Exception e){
+            throw e;
+        }
+
+    }
 }
