@@ -44,4 +44,69 @@ public class ConnectionPool {
             who[i] = "";
         }
     }
+
+    public synchronized void extendConnections() throws Exception {
+        Connection connectionsAdded[] = connections;
+        boolean busyAdded[] = busy;
+        String whoAdded[] = who;
+
+        connections = new Connection[numCon + inc];
+        busy = new boolean[numCon + inc];
+        who = new String[numCon + inc];
+
+        for (int i = 0; i < numCon; i++){
+            connections[i] = connectionsAdded[i];
+            busy[i] = busyAdded[i];
+            who[i] = whoAdded[i];
+        }
+
+        for (int i = numCon; i < numCon + inc; i++){
+            connections[i] = DriverManager.getConnection(dbUrl, dbUser, dbPw);
+            busy[i] = false;
+            who[i] = "";
+        }
+
+        numCon += inc;
+    }
+
+    public synchronized Connection getConnection(String who) throws Exception{
+
+        int indFree = findFreeConnection();
+        if (indFree < 0){
+            extendConnections();
+            indFree = findFreeConnection();
+            if (indFree < 0)
+                return null;
+        }
+        busy[indFree] = true;
+        this.who[indFree] = who;
+        return connections[indFree];
+    }
+
+    public synchronized Connection getConnection() throws Exception{
+        return getConnection("noName");
+    }
+
+    public synchronized  void releaseConnection (Connection connectionToRelease){
+        for (int i = 0; i < numCon; i++){
+            if (connections[i] == connectionToRelease){
+                who[i] = "";
+                busy[i] = false;
+            }
+        }
+    }
+
+    protected int findFreeConnection(){
+        for (int i = 0; i < numCon; i++)
+            if (!busy[i])
+                return i;
+        return -1;
+    }
+
+    public String printStatusConnection(){
+        String result = "";
+        for (int i = 0; i < numCon; i++)
+            result += "Conn. " + i + ": " + busy[i] + "used by: " + who[i];
+        return result;
+    }
 }
