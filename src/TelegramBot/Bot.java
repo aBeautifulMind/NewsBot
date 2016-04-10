@@ -47,7 +47,7 @@ public class Bot {
         if(updates.size()>0){
             for (int i = 0; i< updates.size();i++){
                 if(updates.get(i).message()!=null){
-                    telegramInterface.OnUpdateReceived(updates.get(i).message());
+                    telegramInterface.OnUpdateReceived(updates.get(i).message(),updates.get(i));
                 }
             }
             offset=updates.get(updates.size()-1).updateId()+1;
