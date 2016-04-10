@@ -1,18 +1,20 @@
 package HTMLParsing;
 
+import NewsPackage.NewsClass;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 
 /**
  * Created by Emanuele on 05/04/2016.
  */
 public abstract class BaseParser {
     // this is a try
-    public abstract void ParsePage();
+    public abstract ArrayList<NewsClass> ParsePage() throws Exception;
 
     /**
      *

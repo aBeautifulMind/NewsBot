@@ -8,14 +8,14 @@ import java.util.Date;
 public class NewsClass {
 
     private int id;
-    private int newsSite;
+    private String newsSite;
     private String newsTitle;
     private String newsImg;
     private String newsDescription;
     private String newsUrl;
     private Date newsData;
 
-    public NewsClass(int newsSite, String newsTitle, String newsImg, String newsDescription, String newsUrl, Date newsData) {
+    public NewsClass(String newsSite, String newsTitle, String newsImg, String newsDescription, String newsUrl, Date newsData) {
         this.newsSite = newsSite;
         this.newsTitle = newsTitle;
         this.newsImg = newsImg;
@@ -27,8 +27,7 @@ public class NewsClass {
     @Override
     public String toString() {
         return "NewsClass{" +
-                "id=" + id +
-                ", newsSite=" + newsSite +
+                " newsSite=" + newsSite +
                 ", newsTitle='" + newsTitle + '\'' +
                 ", newsImg='" + newsImg + '\'' +
                 ", newsDescription='" + newsDescription + '\'' +

@@ -36,13 +36,25 @@ public class Bot {
 
     }
 
-    public List<Update> getUpdates(){
+    public void getUpdates(TelegramInterface telegramInterface){
         GetUpdatesResponse updatesResponse = telegramBot.getUpdates(offset, limit, timeout);
         List<Update> updates = updatesResponse.updates();
-        return updates;
+
+        DispatchUpdate(updates,telegramInterface);
     }
 
-    public void SendMessage(int chatId, String message) throws Exception{
+    private void DispatchUpdate(List<Update> updates, TelegramInterface telegramInterface) {
+        if(updates.size()>0){
+            for (int i = 0; i< updates.size();i++){
+                if(updates.get(i).message()!=null){
+                    telegramInterface.OnUpdateReceived(updates.get(i).message());
+                }
+            }
+            offset=updates.get(updates.size()-1).updateId()+1;
+        }
+    }
+
+    public void SendMessage(long chatId, String message) throws Exception{
         try {
             telegramBot.sendMessage(chatId,message);
         }

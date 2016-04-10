@@ -5,15 +5,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Emanuele on 05/04/2016.
  */
 public class HDBlogParser extends BaseParser {
     private final String url = "http://www.hdblog.it/";
-    private String selector=".newlist_normal";
+    private String selector="newlist_normal";
     private String lastTitle;
-    private String[] newsCategory = {"cat_games, cat_android, cat_mobile, "}
 
     public HDBlogParser(String selector) {
         this.selector = selector;
@@ -22,7 +22,7 @@ public class HDBlogParser extends BaseParser {
     public HDBlogParser() {
     }
 
-    public void ParsePage() {
+    public ArrayList<NewsClass> ParsePage() throws Exception{
 
         try {
             Document doc = getDocument(url);
@@ -35,28 +35,43 @@ public class HDBlogParser extends BaseParser {
             }
             System.out.println(elements);
             */
-            Elements newsList = doc.getElementsByClass(".newlist_normal");
-            ArrayList<NewsClass> newsClassArrayList = new ArrayList<>();
+            Elements newsList = doc.getElementsByClass(selector);
+            ArrayList<NewsClass> newsClassArrayList = new ArrayList<NewsClass>();
             for (Element element: newsList) {
                 Element newsTitle = element.getElementsByClass("title_new").get(0);
-                Element newsImage = element.getElementsByClass("thumb_new_image").get(0);
-                Element newsDescription = element.getElementsByClass().get(0);
-                Element newsUrl = element.getElementsByClass().get(0);
-                Element newsData = element.getElementsByClass().get(0);
-                Element newsSite = element.getElementsByClass().get(0);
+                Element imageContainer = element.getElementsByClass("thumb_new_image").get(0);
+                Element newsImage = imageContainer.getElementsByTag("img").get(0);
+                Element newsDescription = element.getElementsByTag("p").get(0);
+                //Element newsData = element.getElementsByClass().get(0);
                 System.out.println(element);
-
+                Date date = new Date();
+                NewsClass news = new NewsClass("HDblog",newsTitle.text(),newsImage.attr("data-src"),newsDescription.text(),imageContainer.attr("href"),date);
+                newsClassArrayList.add(news);
             }
-            System.out.println(newsList);
+            return newsClassArrayList;
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
-    }
+
+            }
 
     //test
     public static void main(String[] args){
         HDBlogParser hdBlogParser = new HDBlogParser();
-        hdBlogParser.ParsePage();
+        ArrayList<NewsClass> newsList = null;
+        try {
+            System.out.println("PARSED");
+            newsList = hdBlogParser.ParsePage();
+
+            for(int i = 0; i< newsList.size();i++){
+                System.out.println(newsList.get(i));
+            }
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
         //lo metto nel db
     }
 }
