@@ -24,6 +24,7 @@ public class MessageManager implements TelegramInterface{
 
     public MessageManager(Bot bot) {
         this.bot = bot;
+        createConnectionPool();
     }
 
     public void createConnectionPool(){
