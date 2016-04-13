@@ -1,18 +1,18 @@
 package TelegramBot;
 
-import Contants.SiteConstants;
-import CustomContainer.SiteList;
-import DatabaseUtils.ConnectionPool;
+import HTMLParsing.BaseParser;
+import HTMLParsing.HDBlogParser;
+import HTMLParsing.RunnableParser;
 import SecurityPackage.DatabaseData;
-import User.User;
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.ChosenInlineResult;
 import com.pengrad.telegrambot.model.InlineQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.sun.org.apache.bcel.internal.Constants;
+import org.apache.commons.dbcp2.BasicDataSource;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.*;
 
 /**
  * Created by Emanuele on 06/04/2016.
@@ -20,16 +20,23 @@ import java.util.ArrayList;
 public class MessageManager implements TelegramInterface{
 
     private Bot bot;
-    private ConnectionPool connectionPool;
+    private BasicDataSource connectionPool;
+    private ExecutorService executorService;
 
     public MessageManager(Bot bot) {
         this.bot = bot;
+        this.executorService = Executors.newCachedThreadPool();
         createConnectionPool();
     }
 
     public void createConnectionPool(){
         try {
-            connectionPool = new ConnectionPool(DatabaseData.DB_PW,DatabaseData.DB_URL,DatabaseData.DB_USER,DatabaseData.DB_DRIVER,10,10);
+            connectionPool = new BasicDataSource();
+            connectionPool.setUrl(DatabaseData.DB_URL);
+            connectionPool.setUsername(DatabaseData.DB_USER);
+            connectionPool.setPassword(DatabaseData.DB_PW);
+            connectionPool.setDriverClassName(DatabaseData.DB_DRIVER);
+            connectionPool.setInitialSize(10);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -38,62 +45,44 @@ public class MessageManager implements TelegramInterface{
 
     public static void main(String[] args){
         Bot bot = new Bot();
-        MessageManager messageManager = new MessageManager(bot);
+        final MessageManager messageManager = new MessageManager(bot);
+        // And From your main() method or any other method
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(10);
+        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                StartRunnable(messageManager);
+            }
+        },0,10, TimeUnit.SECONDS);
         while (true)
             bot.getUpdates(messageManager);
     }
 
+    public static void StartRunnable(MessageManager messageManager) {
+        System.out.println("Starting runnable...");
+        ArrayList<BaseParser> baseParsers = new ArrayList<>();
+        baseParsers.add(new HDBlogParser());
+        RunnableParser runnableParser = null;
+        try {
+            runnableParser = new RunnableParser(baseParsers,messageManager.connectionPool.getConnection(),messageManager.bot);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        messageManager.executorService.execute(runnableParser);
+    }
+
     public void OnUpdateReceived(Message message, Update update) {
-        String command = "";
-        String realMessage = "";
-        if(message.text().startsWith("/start")) {
-            try {
-                bot.SendMessage(message.chat().id(), "EHI CIAO, BENVENUTO SU NEWS BOT! Tra poco saranno disponibili molti servizi news");
-                User user = new User(message.chat().id(),update.message().from().id(),message.from().firstName(),message.from().lastName(),message.from().username());
-                if(user.addUserToDb(connectionPool)){
-                    bot.SendMessage(message.chat().id(),"Complimenti, sei stato aggiunto correttamente al DB!");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return;
+        System.out.println("Received message!");
+        MessageThread messageThread = null;
+        try {
+            messageThread = new MessageThread(message,connectionPool.getConnection(), bot);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        if(message.text().contains(" ")){
-            command = message.text().substring(0,message.text().indexOf(" "));
-            realMessage = message.text().substring(message.text().indexOf(" ")+1);
-        }
-
-        switch (command){
-            case ("Aggiungi"):
-                if(VerifySite(realMessage)){
-                    try {
-                        bot.SendMessage(message.chat().id(),"AGGIUNTO CORRETAMENTE");
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-
-            default:
-
-        }
-
+        executorService.execute(messageThread);
     }
 
-    private boolean VerifySite(String site) {
-        SiteList availableSite = new SiteList();
-        String siteLowerCase = site.toLowerCase();
-        availableSite.add(SiteConstants.HDBLOG);
 
-        if(availableSite.contains(siteLowerCase)){
-            return true;
-        }
-
-        return false;
-
-    }
 
     public void OnFileReceived(Message message) {
 

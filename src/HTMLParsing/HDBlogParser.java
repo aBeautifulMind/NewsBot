@@ -1,5 +1,6 @@
 package HTMLParsing;
 
+import Contants.SiteConstants;
 import NewsPackage.NewsClass;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,7 +12,7 @@ import java.util.Date;
  * Created by Emanuele on 05/04/2016.
  */
 public class HDBlogParser extends BaseParser {
-    private final String url = "http://www.hdblog.it/";
+    private final String url = SiteConstants.HDBLOG_URL;
     private String selector="newlist_normal";
     private String lastTitle;
 
@@ -43,9 +44,9 @@ public class HDBlogParser extends BaseParser {
                 Element newsImage = imageContainer.getElementsByTag("img").get(0);
                 Element newsDescription = element.getElementsByTag("p").get(0);
                 //Element newsData = element.getElementsByClass().get(0);
-                System.out.println(element);
+                //System.out.println(element);
                 Date date = new Date();
-                NewsClass news = new NewsClass("HDblog",newsTitle.text(),newsImage.attr("data-src"),newsDescription.text(),imageContainer.attr("href"),date);
+                NewsClass news = new NewsClass("hdblog",newsTitle.text(),newsImage.attr("data-src"),newsDescription.text(),imageContainer.attr("href"),date);
                 newsClassArrayList.add(news);
             }
             return newsClassArrayList;
