@@ -26,7 +26,7 @@ public abstract class BaseParser {
         UrlValidator urlValidator = new UrlValidator();
         if(urlValidator.isValid(url)){
             try {
-                Document doc = Jsoup.connect(url).get();
+                Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36").get();
                 return doc;
             } catch (IOException e) {
                 e.printStackTrace();

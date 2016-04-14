@@ -23,7 +23,7 @@ public class TomsParser extends BaseParser{
     @Override
     public ArrayList<NewsClass> ParsePage() throws Exception {
         try {
-            Document document = getDocument(url);
+            Document document = getDocument("http://www.tomshw.it/");
             Elements newsList = document.getElementsByTag("li");
             ArrayList<NewsClass> newsClassArrayList = new ArrayList<NewsClass>();
             for (Element element : newsList){

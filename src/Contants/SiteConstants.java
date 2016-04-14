@@ -6,6 +6,6 @@ package Contants;
 public class SiteConstants {
     public static final String HDBLOG = "hdblog";
     public static final String HDBLOG_URL = "http://www.hdblog.it/";
-    public static final String TOMS_URL = "http://tomshw.it/";
+    public static final String TOMS_URL = "http://www.tomshw.it/";
 
 }
