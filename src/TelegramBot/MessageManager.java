@@ -9,7 +9,6 @@ import com.pengrad.telegrambot.model.InlineQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import org.apache.commons.dbcp2.BasicDataSource;
-
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -104,5 +103,5 @@ public class MessageManager implements TelegramInterface{
 
     public void OnPhotoReceived(Message message) {
 
-    }
 }
+        }

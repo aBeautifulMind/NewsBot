@@ -26,7 +26,7 @@ public class HDBlogParser extends BaseParser {
     public ArrayList<NewsClass> ParsePage() throws Exception{
 
         try {
-            Document doc = getDocument(url);
+            Document doc = getDocument("http://www.hdblog.it");
             /*
             Elements elements = doc.select(selector);
             System.out.println("elements: "+elements.size());
@@ -73,6 +73,5 @@ public class HDBlogParser extends BaseParser {
         catch (Exception e){
             e.printStackTrace();
         }
-        //lo metto nel db
     }
 }
