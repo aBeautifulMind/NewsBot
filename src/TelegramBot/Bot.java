@@ -28,7 +28,7 @@ public class Bot {
     }
 
     public Bot() {
-        timeout = 0;
+        timeout = 10;
         offset=0;
         limit=0;
         if(telegramBot==null)

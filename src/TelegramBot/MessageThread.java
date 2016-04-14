@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.Message;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 
 /**
@@ -29,6 +30,7 @@ public class MessageThread implements Runnable{
 
     @Override
     public void run() {
+        System.out.println("nel thread");
         String command = "";
         String realMessage = "";
         User user = new User(messageToManage.chat().id(),messageToManage.from().id(),messageToManage.from().firstName(),messageToManage.from().lastName(),messageToManage.from().username());
@@ -44,6 +46,11 @@ public class MessageThread implements Runnable{
                     bot.SendMessage(messageToManage.chat().id(), "Manda Aggiungi e poi un sito per aggiungere un sito ai tuoi preferiti!");
                 }
             } catch (Exception e) {
+                e.printStackTrace();
+            }
+            try {
+                connection.close();
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
             return;
@@ -88,12 +95,19 @@ public class MessageThread implements Runnable{
                 break;
 
             default:
+                System.out.println("DEFAULT");
                 try {
                     bot.SendMessage(messageToManage.chat().id(), "Manda Aggiungi e poi un sito per aggiungere un sito ai tuoi preferiti!");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
+        }
+
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
     }

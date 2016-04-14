@@ -10,6 +10,8 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import org.apache.commons.dbcp2.BasicDataSource;
 
+import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -36,7 +38,9 @@ public class MessageManager implements TelegramInterface{
             connectionPool.setUsername(DatabaseData.DB_USER);
             connectionPool.setPassword(DatabaseData.DB_PW);
             connectionPool.setDriverClassName(DatabaseData.DB_DRIVER);
-            connectionPool.setInitialSize(10);
+            connectionPool.setLogAbandoned(true);
+            //connectionPool.setMaxConnLifetimeMillis(10000*5);
+            connectionPool.setInitialSize(100);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -53,7 +57,7 @@ public class MessageManager implements TelegramInterface{
             public void run() {
                 StartRunnable(messageManager);
             }
-        },0,10, TimeUnit.SECONDS);
+        },0,1, TimeUnit.HOURS);
         while (true)
             bot.getUpdates(messageManager);
     }
@@ -65,10 +69,11 @@ public class MessageManager implements TelegramInterface{
         RunnableParser runnableParser = null;
         try {
             runnableParser = new RunnableParser(baseParsers,messageManager.connectionPool.getConnection(),messageManager.bot);
+            messageManager.executorService.execute(runnableParser);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        messageManager.executorService.execute(runnableParser);
+
     }
 
     public void OnUpdateReceived(Message message, Update update) {
@@ -76,10 +81,11 @@ public class MessageManager implements TelegramInterface{
         MessageThread messageThread = null;
         try {
             messageThread = new MessageThread(message,connectionPool.getConnection(), bot);
+            executorService.execute(messageThread);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        executorService.execute(messageThread);
+
     }
 
 

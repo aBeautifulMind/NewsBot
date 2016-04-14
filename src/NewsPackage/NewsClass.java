@@ -54,7 +54,7 @@ public class NewsClass {
             //connection.close();
             return true;
         } catch (Exception e) {
-            System.out.println(e);
+            //System.out.println(e);
             throw new NewsAlreadyAddedException("This news has already been added!");
         }
 

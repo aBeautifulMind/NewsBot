@@ -84,7 +84,7 @@ public class RunnableParser implements Runnable {
                 notAlreadyAddedNews.add(newsToFind.get(i));
             }
             catch (NewsAlreadyAddedException e){
-                System.out.println("exc: "+e);
+                //System.out.println("exc: "+e);
             }
         }
         return notAlreadyAddedNews;
