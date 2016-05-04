@@ -80,11 +80,13 @@ public class RunnableParser implements Runnable {
         ArrayList<NewsClass> notAlreadyAddedNews = new ArrayList<>();
         for (int i = 0; i< newsToFind.size(); i++){
             try{
-                (newsToFind.get(i)).InsertNewsInDb(connection);
+                (newsToFind.get(i)).InsertNewsInDbv2(connection);
                 notAlreadyAddedNews.add(newsToFind.get(i));
             }
             catch (NewsAlreadyAddedException e){
                 //System.out.println("exc: "+e);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         return notAlreadyAddedNews;

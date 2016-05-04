@@ -4,9 +4,12 @@ import CustomException.NewsAlreadyAddedException;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.sql.DriverManager;
 
 /**
  * Created by Giulio on 08/04/2016.
@@ -20,6 +23,7 @@ public class NewsClass {
     private String newsDescription;
     private String newsUrl;
     private Date newsData;
+
 
     public NewsClass(String newsSite, String newsTitle, String newsImg, String newsDescription, String newsUrl, Date newsData) {
         this.newsSite = newsSite;
@@ -60,6 +64,53 @@ public class NewsClass {
 
     }
 
+    public boolean InsertNewsInDbv2(Connection connection) throws SQLException, NewsAlreadyAddedException{
+        PreparedStatement insertNewsStatement = null;
+        boolean result=false;
+
+        String insertString = "INSERT INTO News(news_site, news_title, news_img, news_description, news_url, news_data) VALUES"+
+        " ( ? , ? , ? , ? , ? , ? )";
+        try {
+            connection.setAutoCommit(false);
+            insertNewsStatement = connection.prepareStatement(insertString);
+
+            insertNewsStatement.setString(1, newsSite);
+            insertNewsStatement.setString(2,newsTitle);
+            insertNewsStatement.setString(3,newsImg);
+            insertNewsStatement.setString(4,newsDescription);
+            insertNewsStatement.setString(5,newsUrl);
+
+            java.sql.Date startDate = new java.sql.Date(newsData.getTime());
+            insertNewsStatement.setDate(5,startDate);
+            connection.commit();
+            result=true;
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+            if(connection!=null){
+                try{
+                    System.err.println("Transaction is being rolled back");
+                    connection.rollback();
+                }
+                catch (SQLException excep){
+                    e.printStackTrace();
+                }
+            }
+            result=false;
+        }
+        finally {
+            if(insertNewsStatement!=null){
+                insertNewsStatement.close();
+            }
+            connection.setAutoCommit(true);
+        }
+
+        if(!result) {
+            throw new NewsAlreadyAddedException("Already added");
+        }
+        return result;
+    }
+
     public int getId() {
         return id;
     }
@@ -86,5 +137,19 @@ public class NewsClass {
 
     public String getNewsUrl() {
         return newsUrl;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof NewsClass)){
+            return false;
+        }
+        else{
+            NewsClass news = (NewsClass) obj;
+            if(this.newsSite.equals(news.newsSite) && this.newsImg.equals(news.newsImg) && this.newsData.equals(news.newsData) && this.newsDescription.equals(news.newsDescription) && this.newsUrl.equals(news.newsUrl)){
+                return true;
+            }
+        }
+        return false;
     }
 }
